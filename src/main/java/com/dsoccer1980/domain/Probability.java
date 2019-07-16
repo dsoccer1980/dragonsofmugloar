@@ -8,9 +8,11 @@ public class Probability {
     public static final String QUITE_LIKELY = "Quite likely";
     public static final String HMMM = "Hmmm....";
     public static final String GAMBLE = "Gamble";
+    public static final String RISKY = "Risky";
+    public static final String PLAYING_WITH_FIRE = "Playing with fire";
     public static final String RATHER_DETRIMENTAL = "Rather detrimental";
-    public static final int RISKY = 1;
-    public static final int SUICIDE_MISSION = 0;
+    public static final String SUICIDE_MISSION = "Suicide mission";
+    public static final String IMPOSSIBLE = "Impossible";
 
 
 }
