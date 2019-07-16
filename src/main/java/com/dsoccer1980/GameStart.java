@@ -44,12 +44,16 @@ public class GameStart {
                     .forEach(mes -> {
                         mes.setMessage(new String(Base64.getDecoder().decode(mes.getMessage())));
                         mes.setProbability(new String(Base64.getDecoder().decode(mes.getProbability())));
+                        mes.setAdId(new String(Base64.getDecoder().decode(mes.getAdId())));
                     });
 
             List<Message> messageList = getFilteredMessages3(messages);
             System.out.println("------------------------");
             messages.forEach(System.out::println);
             System.out.println("------------------------");
+//            System.out.println("Filtered messaged");
+//            messageList.forEach(System.out::println);
+//            System.out.println("------------------------");
 
 
             for (Message message : messageList) {
@@ -63,7 +67,7 @@ public class GameStart {
                         purchaseItem("tricks", 100, currentGold);
                     } else if (message.getMessage().contains("defending")) {
                         purchaseItem("iron", 300, currentGold);
-                        //purchaseItem("mtrix", 100, currentGold);
+                        purchaseItem("gas", 100, currentGold);
                         // purchaseItem("cs", 100, currentGold);
                     }
 
@@ -129,18 +133,7 @@ public class GameStart {
         adSolutionRepository.save(adSolution);
     }
 
-    private List<Message> getFilteredMessages3(List<Message> messages) {
-        for (String probability : probabilities) {
-            List<Message> messageList = messages.stream()
-                    .filter(mes -> probability.equals(mes.getProbability()))
-                    .sorted(Comparator.comparing(mes -> (int) mes.getExpiresIn()))
-                    .collect(Collectors.toList());
-            if (messageList.size() != 0) {
-                return messageList;
-            }
-        }
-        return Collections.emptyList();
-    }
+
 
 
     public void start() {
@@ -307,6 +300,23 @@ public class GameStart {
                 .filter(mes -> !mes.getMessage().contains("awesome"))
                 .collect(Collectors.toList());
         return collect2.size() == 0 ? collect : collect2;
+    }
+
+    private List<Message> getFilteredMessages3(List<Message> messages) {
+        Comparator<Message> comparator
+                = Comparator.comparing(Message::getExpiresIn)
+                .thenComparing(Message::getReward).reversed();
+
+        for (String probability : probabilities) {
+            List<Message> messageList = messages.stream()
+                    .filter(mes -> probability.equals(mes.getProbability()))
+                    .sorted(comparator)
+                    .collect(Collectors.toList());
+            if (messageList.size() != 0) {
+                return messageList;
+            }
+        }
+        return Collections.emptyList();
     }
 
 }
