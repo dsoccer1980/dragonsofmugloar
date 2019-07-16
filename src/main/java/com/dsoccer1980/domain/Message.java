@@ -18,13 +18,15 @@ public class Message {
     private String adId;
     private String message;
     private String reward;
+    private String encrypted;
     private Integer expiresIn;
     private String probability;
 
-    public Message(String adId, String message, String reward, Integer expiresIn, String probability) {
+    public Message(String adId, String message, String reward, String encrypted, Integer expiresIn, String probability) {
         this.adId = adId;
         this.message = message;
         this.reward = reward;
+        this.encrypted = encrypted;
         this.expiresIn = expiresIn;
         this.probability = probability;
     }

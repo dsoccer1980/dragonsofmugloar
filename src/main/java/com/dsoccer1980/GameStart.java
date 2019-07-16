@@ -4,6 +4,7 @@ import com.dsoccer1980.domain.*;
 import com.dsoccer1980.repository.AdSolutionRepository;
 import com.dsoccer1980.repository.MessageRepository;
 import com.dsoccer1980.repository.Repository;
+import com.dsoccer1980.repository.ShortMessageRepository;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -13,15 +14,19 @@ public class GameStart {
     private final Repository repository;
     private final MessageRepository messageRepository;
     private final AdSolutionRepository adSolutionRepository;
+    private final ShortMessageRepository shortMessageRepository;
     private Game game;
     private Reputation reputation;
+    private String purchaseItemId = "";
+    private int currentGold = 0;
 
-    private String[] probabilities = new String[]{Probability.PIECE_OF_CAKE, Probability.WALK_IN_THE_PARK, Probability.SURE_THING, Probability.QUITE_LIKELY, Probability.HMMM, Probability.GAMBLE, Probability.RISKY, Probability.PLAYING_WITH_FIRE, Probability.RATHER_DETRIMENTAL, Probability.SUICIDE_MISSION, Probability.IMPOSSIBLE};
+    private String[] probabilities = new String[]{Probability.PIECE_OF_CAKE, Probability.WALK_IN_THE_PARK, Probability.SURE_THING, Probability.QUITE_LIKELY, Probability.HMMM, Probability.GAMBLE, Probability.RISKY, Probability.PLAYING_WITH_FIRE, Probability.RATHER_DETRIMENTAL, Probability.IMPOSSIBLE, Probability.SUICIDE_MISSION};
 
-    public GameStart(Repository repository, MessageRepository messageRepository, AdSolutionRepository adSolutionRepository) {
+    public GameStart(Repository repository, MessageRepository messageRepository, AdSolutionRepository adSolutionRepository, ShortMessageRepository shortMessageRepository) {
         this.repository = repository;
         this.messageRepository = messageRepository;
         this.adSolutionRepository = adSolutionRepository;
+        this.shortMessageRepository = shortMessageRepository;
     }
 
     public void start2() {
@@ -29,23 +34,39 @@ public class GameStart {
         List<Shop> listItemsInShop = repository.getListItemsInShop(game.getGameId());
         int lives = game.getLives().intValue();
 
+
+        currentGold = game.getGold().intValue();
         do {
             List<Message> messages = repository.getMessages(game.getGameId());
+            System.out.println(">>>encrypt:");
+            messages.stream()
+                    .filter(mes -> mes.getEncrypted() != null && mes.getEncrypted().equals("1"))
+                    .forEach(mes -> {
+                        mes.setMessage(new String(Base64.getDecoder().decode(mes.getMessage())));
+                        mes.setProbability(new String(Base64.getDecoder().decode(mes.getProbability())));
+                    });
+
             List<Message> messageList = getFilteredMessages3(messages);
+            System.out.println("------------------------");
             messages.forEach(System.out::println);
+            System.out.println("------------------------");
 
-
-            int currentGold = game.getGold().intValue();
 
             for (Message message : messageList) {
-                if (message.getExpiresIn()>1) {
-                    if (message.getMessage().contains("Escort")) {
+                purchaseItemId = "";
+                if (message.getExpiresIn() > 1 && (lives != 1 )) {
+                    if (message.getMessage().contains("Escort") || message.getMessage().contains("transport")) {
                         purchaseItem("wingpot", 100, currentGold);
-                    } else if (message.getMessage().contains("advertisement")) {
+                    } else if (message.getMessage().contains("advertisement") || message.getMessage().contains("agreement")) {
                         purchaseItem("mtrix", 300, currentGold);
                     } else if (message.getMessage().contains("Steal")) {
-                        purchaseItem("tricks", 300, currentGold);
+                        purchaseItem("tricks", 100, currentGold);
+                    } else if (message.getMessage().contains("defending")) {
+                        purchaseItem("iron", 300, currentGold);
+                        //purchaseItem("mtrix", 100, currentGold);
+                        // purchaseItem("cs", 100, currentGold);
                     }
+
                 }
 
                 Solution solution = repository.solveMessage(game.getGameId(), message.getAdId());
@@ -53,12 +74,26 @@ public class GameStart {
                     System.out.println(message);
                     System.out.println(solution);
                     currentGold = solution.getGold().intValue();
-                    saveToDB(solution, message);
+                    //  saveToDB(solution, message);
+
+                    List<String> listShortMessages = Arrays.asList("advertisement", "Escort", "defending", "to sell", "to write", "to clean", "to reach", "to fix", "Steal", "Investigate");
+
+                    for (String listShortMessage : listShortMessages) {
+                        if (message.getMessage().contains(listShortMessage)) {
+                            shortMessageRepository.save(new ShortMessage(listShortMessage, message.getMessage(), solution.getSuccess(), purchaseItemId));
+                            break;
+                        }
+                    }
+
 
                     lives = solution.getLives().intValue();
                     if (lives == 1) {
                         Purchase hpot = repository.purchaseItem(game.getGameId(), "hpot");
-                        System.out.println("!!!!!!!!!" + hpot);
+                        if (hpot.getShoppingSuccess().equals("true")) {
+                            currentGold -= 100;
+                        }
+                        //System.out.println("!!!!!!!!!" + hpot);
+                        System.out.println(">>>>>>Reputation: " + repository.getReputation(game.getGameId()));
                     }
                 } else {
                     System.out.println("solution = null");
@@ -242,7 +277,9 @@ public class GameStart {
         if (gold.intValue() >= itemCost) {
             Purchase purchase = repository.purchaseItem(game.getGameId(), itemId);
             if (purchase.getShoppingSuccess().equals("true")) {
-                System.out.println(">>>>>>purchase: " + itemId);
+                System.out.println(">>>>>>purchase: " + purchase + " " + itemId);
+                purchaseItemId = itemId;
+                currentGold -= itemCost;
                 return true;
             }
         }
@@ -257,10 +294,19 @@ public class GameStart {
     }
 
     private List<Message> getFilteredMessages2(List<Message> messages, Set<String> probabilityList) {
-        return messages.stream()
+        Comparator<Message> comparator
+                = Comparator.comparing(Message::getExpiresIn)
+                .thenComparing(Message::getReward).reversed();
+
+
+        List<Message> collect = messages.stream()
                 .filter(mes -> probabilityList.contains(mes.getProbability()))
-                .sorted(Comparator.comparing(mes -> (int) mes.getExpiresIn()))
+                .sorted(comparator)
                 .collect(Collectors.toList());
+        List<Message> collect2 = collect.stream()
+                .filter(mes -> !mes.getMessage().contains("awesome"))
+                .collect(Collectors.toList());
+        return collect2.size() == 0 ? collect : collect2;
     }
 
 }

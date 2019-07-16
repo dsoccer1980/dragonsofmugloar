@@ -16,3 +16,11 @@ CREATE TABLE Ad_Solution
   success INT,
   fail    INT
 );
+
+CREATE TABLE short_message (
+  id INT PRIMARY KEY DEFAULT nextval('global_seq'),
+  short_message VARCHAR(255),
+  probability VARCHAR(255),
+  solution boolean,
+  purchase VARCHAR(255)
+)

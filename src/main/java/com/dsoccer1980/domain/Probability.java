@@ -11,8 +11,8 @@ public class Probability {
     public static final String RISKY = "Risky";
     public static final String PLAYING_WITH_FIRE = "Playing with fire";
     public static final String RATHER_DETRIMENTAL = "Rather detrimental";
-    public static final String SUICIDE_MISSION = "Suicide mission";
     public static final String IMPOSSIBLE = "Impossible";
+    public static final String SUICIDE_MISSION = "Suicide mission";
 
 
 }
