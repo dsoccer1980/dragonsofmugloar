@@ -53,7 +53,7 @@ public class Repository {
                 .getBody();
     }
 
-    public Solution solveMessage(String gameId, String adId) {
+    public Solution solveTask(String gameId, String adId) {
         Map<String, String> map = new HashMap<>();
         map.put("gameId", gameId);
         map.put("adId", adId);
