@@ -1,6 +1,9 @@
 package com.dsoccer1980;
 
-import com.dsoccer1980.domain.*;
+import com.dsoccer1980.domain.Game;
+import com.dsoccer1980.domain.Message;
+import com.dsoccer1980.domain.Purchase;
+import com.dsoccer1980.domain.Solution;
 import com.dsoccer1980.repository.Repository;
 import com.dsoccer1980.service.GameDecision;
 
@@ -13,7 +16,6 @@ public class GameStart {
     private Game game;
     private int currentGold = 0;
     private int lives = 0;
-    private Probability[] probabilities = Probability.values();
 
 
     public GameStart(Repository repository, GameDecision gameDecision) {
@@ -40,7 +42,7 @@ public class GameStart {
     }
 
 
-    public void start() {
+    public Solution start() {
         game = repository.getGameStartParameters();
         lives = game.getLives().intValue();
         currentGold = game.getGold().intValue();
@@ -48,13 +50,12 @@ public class GameStart {
         do {
             Solution solution = step();
             if (lives == 0) {
-                System.out.println(solution);
-                break;
+                return solution;
             }
 
         } while (lives > 0);
 
-
+        return null;
     }
 
 
