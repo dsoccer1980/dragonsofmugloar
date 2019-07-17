@@ -4,8 +4,8 @@ import com.dsoccer1980.domain.GameEntity;
 import com.dsoccer1980.domain.Message;
 import com.dsoccer1980.domain.Purchase;
 import com.dsoccer1980.domain.Solution;
-import com.dsoccer1980.service.RequestService;
 import com.dsoccer1980.service.GameDecision;
+import com.dsoccer1980.service.RequestService;
 
 import java.util.List;
 
@@ -16,6 +16,7 @@ public class Game {
     private GameEntity gameEntity;
     private int currentGold = 0;
     private int lives = 0;
+    private boolean isGameTerminated = false;
 
 
     public Game(RequestService requestService, GameDecision gameDecision) {
@@ -34,7 +35,7 @@ public class Game {
                 return solution;
             }
 
-        } while (lives > 0);
+        } while (lives > 0 && !isGameTerminated);
 
         return null;
     }
@@ -57,4 +58,7 @@ public class Game {
         return null;
     }
 
+    public void setGameTerminated(boolean gameTerminated) {
+        isGameTerminated = gameTerminated;
+    }
 }
