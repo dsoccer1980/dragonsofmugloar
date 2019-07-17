@@ -23,25 +23,6 @@ public class GameStart {
         this.gameDecision = gameDecision;
     }
 
-    public Solution step() {
-        List<Message> messages = repository.getMessages(game.getGameId());
-        Message bestMessage = gameDecision.getBestMessage(messages);
-        if (bestMessage != null) {
-            Purchase purchase = gameDecision.purchaseOrNotItem(bestMessage, lives, game, currentGold);
-            if (purchase != null) {
-                currentGold = purchase.getGold().intValue();
-            }
-            Solution solution = repository.solveTask(game.getGameId(), bestMessage.getAdId());
-            if (solution != null) {
-                currentGold = solution.getGold().intValue();
-                lives = solution.getLives().intValue();
-                return solution;
-            }
-        }
-        return null;
-    }
-
-
     public Solution start() {
         game = repository.getGameStartParameters();
         lives = game.getLives().intValue();
@@ -58,5 +39,22 @@ public class GameStart {
         return null;
     }
 
+    private Solution step() {
+        List<Message> messages = repository.getMessages(game.getGameId());
+        Message bestMessage = gameDecision.getBestMessage(messages);
+        if (bestMessage != null) {
+            Purchase purchase = gameDecision.purchaseOrNotItem(bestMessage, lives, game, currentGold);
+            if (purchase != null) {
+                currentGold = purchase.getGold().intValue();
+            }
+            Solution solution = repository.solveTask(game.getGameId(), bestMessage.getAdId());
+            if (solution != null) {
+                currentGold = solution.getGold().intValue();
+                lives = solution.getLives().intValue();
+                return solution;
+            }
+        }
+        return null;
+    }
 
 }
