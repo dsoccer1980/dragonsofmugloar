@@ -9,7 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class GameStart2 {
+public class GameStart3 {
 
     private final Repository repository;
     private Game game;
@@ -17,7 +17,7 @@ public class GameStart2 {
     private Probability[] probabilities = Probability.values();
 
 
-    public GameStart2(Repository repository) {
+    public GameStart3(Repository repository) {
         this.repository = repository;
     }
 
