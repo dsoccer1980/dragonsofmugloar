@@ -1,6 +1,6 @@
 package com.dsoccer1980.service;
 
-import com.dsoccer1980.domain.Game;
+import com.dsoccer1980.domain.GameEntity;
 import com.dsoccer1980.domain.Message;
 import com.dsoccer1980.domain.Probability;
 import com.dsoccer1980.domain.Purchase;
@@ -39,40 +39,40 @@ public class GameDecisionImpl implements GameDecision {
     }
 
     @Override
-    public Purchase purchaseOrNotItem(Message message, int lives, Game game, int currentGold) {
+    public Purchase purchaseOrNotItem(Message message, int lives, GameEntity gameEntity, int currentGold) {
         Purchase purchase = null;
         if (lives == 1) {
-            purchase = purchaseItem("hpot", game, currentGold);
+            purchase = purchaseItem("hpot", gameEntity, currentGold);
         } else if (message.getExpiresIn() > 1) {
-            purchase = decidePurchaseItems(message.getMessage(), game, currentGold);
+            purchase = decidePurchaseItems(message.getMessage(), gameEntity, currentGold);
         }
         return purchase;
     }
 
-    private Purchase purchaseItem(String itemId, Game game, int currentGold) {
+    private Purchase purchaseItem(String itemId, GameEntity gameEntity, int currentGold) {
         Purchase purchase = null;
-        int itemCost = requestService.getListItemsInShop(game.getGameId()).stream()
+        int itemCost = requestService.getListItemsInShop(gameEntity.getGameId()).stream()
                 .filter(shop -> shop.getId().equals(itemId))
                 .mapToInt(shop -> shop.getCost().intValue()).findFirst().orElse(-1);
 
 
         if (itemCost != -1 && currentGold >= itemCost) {
-            purchase = requestService.purchaseItem(game.getGameId(), itemId);
+            purchase = requestService.purchaseItem(gameEntity.getGameId(), itemId);
         }
         return purchase;
     }
 
-    private Purchase decidePurchaseItems(String description, Game game, int currentGold) {
+    private Purchase decidePurchaseItems(String description, GameEntity gameEntity, int currentGold) {
         Purchase purchase = null;
         if (description != null) {
             if (description.contains("Escort") || description.contains("transport")) {
-                purchase = purchaseItem("wingpot", game, currentGold);
+                purchase = purchaseItem("wingpot", gameEntity, currentGold);
             } else if (description.contains("advertisement") || description.contains("agreement")) {
-                purchase = purchaseItem("mtrix", game, currentGold);
+                purchase = purchaseItem("mtrix", gameEntity, currentGold);
             } else if (description.contains("Steal")) {
-                purchase = purchaseItem("tricks", game, currentGold);
+                purchase = purchaseItem("tricks", gameEntity, currentGold);
             } else if (description.contains("defending")) {
-                purchase = purchaseItem("iron", game, currentGold);
+                purchase = purchaseItem("iron", gameEntity, currentGold);
             }
         }
         return purchase;

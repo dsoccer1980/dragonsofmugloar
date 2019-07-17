@@ -16,7 +16,7 @@ public class Main {
 
         RequestService requestService = context.getBean(RequestService.class);
         GameDecision gameDecision = context.getBean(GameDecision.class);
-        Solution solution = new GameStart(requestService, gameDecision).start();
+        Solution solution = new Game(requestService, gameDecision).start();
         System.out.println(solution);
 
         context.close();

@@ -5,7 +5,7 @@ import com.dsoccer1980.domain.*;
 import java.util.List;
 
 public interface RequestService {
-    Game getGameStartParameters();
+    GameEntity getGameStartParameters();
 
     Reputation getReputation(String gameId);
 

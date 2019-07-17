@@ -20,12 +20,12 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public Game getGameStartParameters() {
+    public GameEntity getGameStartParameters() {
         return restTemplate.exchange(
                 BEGIN_URL + "/api/v2/game/start",
                 HttpMethod.POST,
                 null,
-                Game.class)
+                GameEntity.class)
                 .getBody();
 
     }

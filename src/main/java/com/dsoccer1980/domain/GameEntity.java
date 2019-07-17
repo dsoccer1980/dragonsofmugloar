@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class Game {
+public class GameEntity {
 
     private String gameId;
     private Number lives;
