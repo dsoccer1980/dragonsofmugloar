@@ -5,13 +5,14 @@ import com.dsoccer1980.domain.Message;
 import com.dsoccer1980.domain.Probability;
 import com.dsoccer1980.domain.Purchase;
 import com.dsoccer1980.repository.Repository;
+import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Service
 public class GameDecisionImpl implements GameDecision {
-
 
     private final Repository repository;
     private Probability[] probabilities = Probability.values();
