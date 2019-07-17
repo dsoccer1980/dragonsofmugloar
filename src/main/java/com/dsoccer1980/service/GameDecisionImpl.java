@@ -4,7 +4,6 @@ import com.dsoccer1980.domain.Game;
 import com.dsoccer1980.domain.Message;
 import com.dsoccer1980.domain.Probability;
 import com.dsoccer1980.domain.Purchase;
-import com.dsoccer1980.repository.Repository;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -14,11 +13,11 @@ import java.util.stream.Collectors;
 @Service
 public class GameDecisionImpl implements GameDecision {
 
-    private final Repository repository;
+    private final RequestService requestService;
     private Probability[] probabilities = Probability.values();
 
-    public GameDecisionImpl(Repository repository) {
-        this.repository = repository;
+    public GameDecisionImpl(RequestService requestService) {
+        this.requestService = requestService;
     }
 
     @Override
@@ -52,13 +51,13 @@ public class GameDecisionImpl implements GameDecision {
 
     private Purchase purchaseItem(String itemId, Game game, int currentGold) {
         Purchase purchase = null;
-        int itemCost = repository.getListItemsInShop(game.getGameId()).stream()
+        int itemCost = requestService.getListItemsInShop(game.getGameId()).stream()
                 .filter(shop -> shop.getId().equals(itemId))
                 .mapToInt(shop -> shop.getCost().intValue()).findFirst().orElse(-1);
 
 
         if (itemCost != -1 && currentGold >= itemCost) {
-            purchase = repository.purchaseItem(game.getGameId(), itemId);
+            purchase = requestService.purchaseItem(game.getGameId(), itemId);
         }
         return purchase;
     }

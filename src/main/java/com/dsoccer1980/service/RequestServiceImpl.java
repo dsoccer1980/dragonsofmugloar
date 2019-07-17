@@ -1,4 +1,4 @@
-package com.dsoccer1980.repository;
+package com.dsoccer1980.service;
 
 import com.dsoccer1980.domain.*;
 import org.springframework.core.ParameterizedTypeReference;
@@ -10,12 +10,12 @@ import org.springframework.web.client.RestTemplate;
 import java.util.*;
 
 @Service
-public class RepositoryImpl implements Repository {
+public class RequestServiceImpl implements RequestService {
 
     private final RestTemplate restTemplate;
     private final String BEGIN_URL = "https://dragonsofmugloar.com";
 
-    public RepositoryImpl(RestTemplate restTemplate) {
+    public RequestServiceImpl(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 

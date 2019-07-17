@@ -1,10 +1,10 @@
-package com.dsoccer1980.repository;
+package com.dsoccer1980.service;
 
 import com.dsoccer1980.domain.*;
 
 import java.util.List;
 
-public interface Repository {
+public interface RequestService {
     Game getGameStartParameters();
 
     Reputation getReputation(String gameId);
