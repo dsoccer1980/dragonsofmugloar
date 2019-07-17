@@ -7,10 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class Repository {
@@ -43,7 +40,7 @@ public class Repository {
     }
 
     public List<Message> getMessages(String gameId) {
-        return restTemplate.exchange(
+        List<Message> messageList = restTemplate.exchange(
                 BEGIN_URL + "/api/v2/{gameId}/messages",
                 HttpMethod.GET,
                 null,
@@ -51,6 +48,10 @@ public class Repository {
                 },
                 Collections.singletonMap("gameId", gameId))
                 .getBody();
+        if (messageList != null) {
+            decodeEncryptedMessages(messageList);
+        }
+        return messageList;
     }
 
     public Solution solveTask(String gameId, String adId) {
@@ -94,6 +95,16 @@ public class Repository {
                 Purchase.class,
                 map)
                 .getBody();
+    }
+
+    private void decodeEncryptedMessages(List<Message> messages) {
+        messages.stream()
+                .filter(message -> message.getEncrypted() != null && message.getEncrypted().equals("1"))
+                .forEach(message -> {
+                    message.setMessage(new String(Base64.getDecoder().decode(message.getMessage())));
+                    message.setProbability(new String(Base64.getDecoder().decode(message.getProbability())));
+                    message.setAdId(new String(Base64.getDecoder().decode(message.getAdId())));
+                });
     }
 
 
