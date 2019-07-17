@@ -22,6 +22,9 @@ public class GameDecisionImpl implements GameDecision {
 
     @Override
     public Message getBestMessage(List<Message> messages) {
+        if (messages == null) {
+            return null;
+        }
         Comparator<Message> comparator = Comparator.comparing(
                 Message::getExpiresIn)
                 .thenComparing(Message::getReward).reversed();
