@@ -4,9 +4,9 @@ import com.dsoccer1980.domain.GameEntity;
 import com.dsoccer1980.domain.Message;
 import com.dsoccer1980.domain.Probability;
 import com.dsoccer1980.domain.Solution;
-import com.dsoccer1980.service.RequestService;
 import com.dsoccer1980.service.GameDecision;
-import org.junit.jupiter.api.Disabled;
+import com.dsoccer1980.service.RequestService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -29,6 +29,7 @@ public class GameTest {
     private GameDecision gameDecision;
 
     @Test
+    @DisplayName("You have one live and fail task")
     void testOneLifeAndFailFirstTask() {
         GameEntity gameEntity = new GameEntity("1", 1, 0, 0, 0, 0, 0);
         when(requestService.getGameStartParameters()).thenReturn(gameEntity);
@@ -48,6 +49,7 @@ public class GameTest {
     }
 
     @Test
+    @DisplayName("Yoy have one life, success in first task, fail in second task")
     void testOneLifeAndSuccessFirstTaskAndFailSecondTask() {
         GameEntity gameEntity = new GameEntity("1", 1, 0, 0, 0, 0, 0);
         when(requestService.getGameStartParameters()).thenReturn(gameEntity);
@@ -59,7 +61,7 @@ public class GameTest {
         messages.add(message1);
         messages.add(message2);
         List<Message> messages2 = new ArrayList<>();
-        messages.add(message2);
+        messages2.add(message2);
         when(requestService.getMessages(gameEntity.getGameId())).thenReturn(messages, messages2);
         Solution solution1 = new Solution(true, 1, 10, 10, 0, 1, "Success");
         when(requestService.solveTask(gameEntity.getGameId(), message1.getAdId())).thenReturn(solution1);
@@ -67,7 +69,6 @@ public class GameTest {
         when(gameDecision.getBestMessage(messages)).thenReturn(message1);
 
         when(gameDecision.getBestMessage(messages2)).thenReturn(message2);
-
 
         Solution solution2 = new Solution(false, 0, 10, 10, 0, 2, "Fail");
         when(requestService.solveTask(gameEntity.getGameId(), message2.getAdId())).thenReturn(solution2);
@@ -78,23 +79,24 @@ public class GameTest {
     }
 
     @Test
-    @Disabled
+    @DisplayName("You have only one task and success in it")
     void test() {
         GameEntity gameEntity = new GameEntity("1", 1, 0, 0, 0, 0, 0);
         when(requestService.getGameStartParameters()).thenReturn(gameEntity);
 
-        when(requestService.getMessages(gameEntity.getGameId())).thenReturn(Collections.emptyList());
+        Message message = new Message("adId1", "step1", "10", null, 1, Probability.PIECE_OF_CAKE.getProbability());
+        List<Message> messages = Collections.singletonList(message);
+        when(requestService.getMessages(gameEntity.getGameId())).thenReturn(messages, Collections.emptyList());
 
-     //   when(gameDecision.getBestMessage(messages)).thenReturn(message);
+        when(gameDecision.getBestMessage(messages)).thenReturn(message);
 
-        Solution solution = new Solution(false, 0, 0, 0, 0, 1, "Fail");
-      //  when(requestService.solveTask(gameEntity.getGameId(), message.getAdId())).thenReturn(solution);
+        Solution solution = new Solution(true, 1, 10, 10, 0, 1, "Success");
+        when(requestService.solveTask(gameEntity.getGameId(), message.getAdId())).thenReturn(solution);
 
 
         Game game = new Game(requestService, gameDecision);
         assertThat(game.start()).isEqualTo(solution);
     }
-
 
 
 }

@@ -8,6 +8,7 @@ import com.dsoccer1980.service.GameDecision;
 import com.dsoccer1980.service.RequestService;
 
 import java.util.List;
+import java.util.Optional;
 
 public class Game {
 
@@ -18,7 +19,6 @@ public class Game {
     private int lives = 0;
     private boolean isGameTerminated = false;
 
-
     public Game(RequestService requestService, GameDecision gameDecision) {
         this.requestService = requestService;
         this.gameDecision = gameDecision;
@@ -28,34 +28,37 @@ public class Game {
         gameEntity = requestService.getGameStartParameters();
         lives = gameEntity.getLives().intValue();
         currentGold = gameEntity.getGold().intValue();
-
+        Solution lastNotNullSolution = null;
+        Solution solution;
         do {
-            Solution solution = step();
-            if (lives == 0) {
-                return solution;
-            }
+            solution = step().orElse(lastNotNullSolution);
+            lastNotNullSolution = solution;
 
         } while (lives > 0 && !isGameTerminated);
 
-        return null;
+        return solution;
     }
 
-    private Solution step() {
+    private Optional<Solution> step() {
         List<Message> messages = requestService.getMessages(gameEntity.getGameId());
-        Message bestMessage = gameDecision.getBestMessage(messages);
-        if (bestMessage != null) {
-            Purchase purchase = gameDecision.purchaseOrNotItem(bestMessage, lives, gameEntity, currentGold);
-            if (purchase != null) {
-                currentGold = purchase.getGold().intValue();
-            }
-            Solution solution = requestService.solveTask(gameEntity.getGameId(), bestMessage.getAdId());
-            if (solution != null) {
-                currentGold = solution.getGold().intValue();
-                lives = solution.getLives().intValue();
-                return solution;
+        if (messages.size() == 0) {
+            setGameTerminated(true);
+        } else {
+            Message bestMessage = gameDecision.getBestMessage(messages);
+            if (bestMessage != null) {
+                Purchase purchase = gameDecision.purchaseItemIfNecessary(bestMessage, lives, gameEntity, currentGold);
+                if (purchase != null) {
+                    currentGold = purchase.getGold().intValue();
+                }
+                Solution solution = requestService.solveTask(gameEntity.getGameId(), bestMessage.getAdId());
+                if (solution != null) {
+                    currentGold = solution.getGold().intValue();
+                    lives = solution.getLives().intValue();
+                    return Optional.of(solution);
+                }
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     public void setGameTerminated(boolean gameTerminated) {
