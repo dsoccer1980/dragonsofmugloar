@@ -1,5 +1,5 @@
-#Dragons of Mugloar <br>
-##Testtask
+# Dragons of Mugloar <br>
+## Testtask
 
 Program plays the game, documented here https://dragonsofmugloar.com/. <br>
 Program
