@@ -1,7 +1,6 @@
 package com.dsoccer1980.service;
 
-import com.dsoccer1980.domain.Message;
-import com.dsoccer1980.domain.Probability;
+import com.dsoccer1980.domain.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = {GameDecisionImpl.class})
 public class GameDecisionImplTest {
@@ -62,6 +62,48 @@ public class GameDecisionImplTest {
     void test5() {
         Message bestMessage = gameDecision.getBestMessage(null);
         assertThat(bestMessage).isEqualTo(null);
+    }
+
+    @Test
+    @DisplayName("If live==1, purchase hpot")
+    void test6() {
+        GameEntity gameEntity = new GameEntity("id", 1, 0, 0, 0, 0, 0);
+        when(requestService.getListItemsInShop(gameEntity.getGameId())).thenReturn(Arrays.asList(new Shop("hpot", "live", 50)));
+        Purchase excpectedPurchase = new Purchase("true", 50, 1, 1, 1);
+        when(requestService.purchaseItem(gameEntity.getGameId(), "hpot")).thenReturn(excpectedPurchase);
+
+        Message message = new Message("anyId", "any", "any", null, 1, "any");
+        Purchase actualPurchase = gameDecision.purchaseItemIfNecessary(message, 1, gameEntity, 100);
+
+        assertThat(actualPurchase).isEqualTo(excpectedPurchase);
+    }
+
+    @Test
+    @DisplayName("If task is to excort, then purchase wingpot")
+    void test7() {
+        GameEntity gameEntity = new GameEntity("id", 1, 0, 0, 0, 0, 0);
+        when(requestService.getListItemsInShop(gameEntity.getGameId())).thenReturn(Arrays.asList(new Shop("wingpot", "wings", 50)));
+        Purchase excpectedPurchase = new Purchase("true", 50, 2, 1, 1);
+        when(requestService.purchaseItem(gameEntity.getGameId(), "wingpot")).thenReturn(excpectedPurchase);
+
+        Message message = new Message("anyId", "Escort someone to ...", "any", null, 2, "any");
+        Purchase actualPurchase = gameDecision.purchaseItemIfNecessary(message, 2, gameEntity, 100);
+
+        assertThat(actualPurchase).isEqualTo(excpectedPurchase);
+    }
+
+    @Test
+    @DisplayName("If no enough money, then no purchase")
+    void test8() {
+        GameEntity gameEntity = new GameEntity("id", 1, 0, 0, 0, 0, 0);
+        when(requestService.getListItemsInShop(gameEntity.getGameId())).thenReturn(Arrays.asList(new Shop("wingpot", "wings", 50)));
+        Purchase excpectedPurchase = null;
+        when(requestService.purchaseItem(gameEntity.getGameId(), "wingpot")).thenReturn(excpectedPurchase);
+
+        Message message = new Message("anyId", "Escort someone to ...", "any", null, 2, "any");
+        Purchase actualPurchase = gameDecision.purchaseItemIfNecessary(message, 2, gameEntity, 10);
+
+        assertThat(actualPurchase).isEqualTo(excpectedPurchase);
     }
 
 
