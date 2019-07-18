@@ -6,12 +6,14 @@ import com.dsoccer1980.domain.Probability;
 import com.dsoccer1980.domain.Solution;
 import com.dsoccer1980.service.RequestService;
 import com.dsoccer1980.service.GameDecision;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -74,5 +76,25 @@ public class GameTest {
         Game game = new Game(requestService, gameDecision);
         assertThat(game.start()).isEqualTo(solution2);
     }
+
+    @Test
+    @Disabled
+    void test() {
+        GameEntity gameEntity = new GameEntity("1", 1, 0, 0, 0, 0, 0);
+        when(requestService.getGameStartParameters()).thenReturn(gameEntity);
+
+        when(requestService.getMessages(gameEntity.getGameId())).thenReturn(Collections.emptyList());
+
+     //   when(gameDecision.getBestMessage(messages)).thenReturn(message);
+
+        Solution solution = new Solution(false, 0, 0, 0, 0, 1, "Fail");
+      //  when(requestService.solveTask(gameEntity.getGameId(), message.getAdId())).thenReturn(solution);
+
+
+        Game game = new Game(requestService, gameDecision);
+        assertThat(game.start()).isEqualTo(solution);
+    }
+
+
 
 }

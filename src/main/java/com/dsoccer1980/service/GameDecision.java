@@ -9,5 +9,5 @@ import java.util.List;
 public interface GameDecision {
     Message getBestMessage(List<Message> messages);
 
-    Purchase purchaseOrNotItem(Message message, int lives, GameEntity gameEntity, int currentGold);
+    Purchase purchaseItemIfNecessary(Message message, int lives, GameEntity gameEntity, int currentGold);
 }
