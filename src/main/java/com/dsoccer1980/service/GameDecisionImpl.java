@@ -4,6 +4,8 @@ import com.dsoccer1980.domain.GameEntity;
 import com.dsoccer1980.domain.Message;
 import com.dsoccer1980.domain.Probability;
 import com.dsoccer1980.domain.Purchase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -13,6 +15,7 @@ import java.util.stream.Collectors;
 @Service
 public class GameDecisionImpl implements GameDecision {
 
+    private static final Logger log = LoggerFactory.getLogger(GameDecisionImpl.class);
     private final RequestService requestService;
     private Probability[] probabilities = Probability.values();
 
@@ -67,6 +70,10 @@ public class GameDecisionImpl implements GameDecision {
 
         if (itemCost != -1 && currentGold >= itemCost) {
             purchase = requestService.purchaseItem(gameEntity.getGameId(), itemId);
+        }
+
+        if (purchase != null) {
+            log.info("Purchase item:" + itemId);
         }
         return purchase;
     }
